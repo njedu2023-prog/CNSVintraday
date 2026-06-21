@@ -26,3 +26,5 @@ jobs:
         run: python -m cnsvintraday.features.feature_store --help
       - name: Model validation smoke
         run: python -m cnsvintraday.models.baseline_pipeline --help
+      - name: Path validation smoke
+        run: python -m cnsvintraday.paths.path_replay --help
