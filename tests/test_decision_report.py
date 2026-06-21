@@ -13,7 +13,9 @@ def test_decision_report_generates_apple_like_html_without_trade_instructions(tm
 
     html = build_decision_html(report)
 
-    assert "CNSVintraday V2.0 Intraday Decision Report" in html
+    assert "CNSVintraday V2.0 盘中决策观察报告" in html
+    assert "总体状态" in html
+    assert "核心预测" in html
     assert "#f5f5f7" in html
     for forbidden in ("买入信号", "卖出信号", "建仓指令", "清仓指令", "仓位建议", "自动下单"):
         assert forbidden not in html
