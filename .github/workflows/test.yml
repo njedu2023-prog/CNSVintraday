@@ -21,4 +21,4 @@ jobs:
           pip install -r requirements.txt
           pip install -e .
       - name: Run tests
-        run: pytest
+        run: pytest -q --cov=cnsvintraday --cov-report=term-missing --cov-fail-under=80
