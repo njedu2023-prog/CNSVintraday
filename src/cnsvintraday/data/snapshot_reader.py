@@ -18,13 +18,14 @@ class SnapshotReader:
 
     @property
     def paths(self) -> dict[str, Path]:
+        suffix = self.snapshot_time
         return {
-            "snapshot_1min": self.base_dir / "cnsv_1min_asof_1400.parquet",
-            "snapshot_5min": self.base_dir / "cnsv_5min_asof_1400.parquet",
-            "snapshot_15min": self.base_dir / "cnsv_15min_asof_1400.parquet",
-            "snapshot_json": self.base_dir / "intraday_snapshot_1400.json",
-            "quality": self.base_dir / "intraday_quality_1400.json",
-            "manifest": self.base_dir / "intraday_manifest_1400.json",
+            "snapshot_1min": self.base_dir / f"cnsv_1min_asof_{suffix}.parquet",
+            "snapshot_5min": self.base_dir / f"cnsv_5min_asof_{suffix}.parquet",
+            "snapshot_15min": self.base_dir / f"cnsv_15min_asof_{suffix}.parquet",
+            "snapshot_json": self.base_dir / f"intraday_snapshot_{suffix}.json",
+            "quality": self.base_dir / f"intraday_quality_{suffix}.json",
+            "manifest": self.base_dir / f"intraday_manifest_{suffix}.json",
         }
 
     def check_files(self) -> dict[str, bool]:
