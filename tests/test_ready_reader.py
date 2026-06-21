@@ -6,7 +6,10 @@ from cnsvintraday.data.ready_reader import ReadyReader, ready_allows_observation
 
 def test_ready_reader_blocks_false_ready(tmp_path: Path) -> None:
     path = tmp_path / "ready.json"
-    path.write_text(json.dumps({"ready": False, "status": "PASS"}), encoding="utf-8")
+    path.write_text(
+        json.dumps({"trade_date": "20260622", "ready": False, "status": "PASS", "allowed_usage": {}}),
+        encoding="utf-8",
+    )
 
     data = ReadyReader(path).read()
     allowed, warnings, failures = ready_allows_observation(data)
@@ -18,7 +21,12 @@ def test_ready_reader_blocks_false_ready(tmp_path: Path) -> None:
 
 def test_warn_allows_observation_with_warning() -> None:
     allowed, warnings, failures = ready_allows_observation(
-        {"ready": True, "status": "WARN", "allowed_usage": {"can_run_intraday_forecast": True}}
+        {
+            "trade_date": "20260622",
+            "ready": True,
+            "status": "WARN",
+            "allowed_usage": {"can_run_intraday_forecast": True},
+        }
     )
 
     assert allowed
