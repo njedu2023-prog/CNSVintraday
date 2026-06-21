@@ -24,3 +24,5 @@ jobs:
         run: pytest -q --cov=cnsvintraday --cov-report=term-missing --cov-fail-under=80
       - name: Feature engine smoke
         run: python -m cnsvintraday.features.feature_store --help
+      - name: Model validation smoke
+        run: python -m cnsvintraday.models.baseline_pipeline --help
