@@ -5,7 +5,7 @@ from typing import Any
 
 def build_risk_summary(path_summary: dict[str, Any], learning_summary: dict[str, Any], confidence: float | None, path_metrics: dict[str, Any] | None = None) -> dict[str, Any]:
     if not path_summary.get("available"):
-        return {"risk_level": "UNKNOWN", "risk_notes": ["path distribution missing"]}
+        return {"risk_level": "UNKNOWN", "risk_notes": ["路径分布缺失。"]}
     downside = float(path_summary.get("downside_risk", 0.0))
     expected_range = float(path_summary.get("expected_range", 0.0))
     coverage = None
@@ -33,7 +33,7 @@ def build_risk_summary(path_summary: dict[str, Any], learning_summary: dict[str,
         "expected_range": expected_range,
         "path_coverage": coverage,
         "risk_notes": [
-            "High risk does not mean price must fall.",
-            "Low risk does not mean price must rise.",
+            "高风险不代表价格必然下跌。",
+            "低风险不代表价格必然上涨。",
         ],
     }
