@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import argparse
 import json
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
@@ -21,6 +22,11 @@ from cnsvintraday.utils.paths import (
     report_path,
 )
 from cnsvintraday.validation.future_guard import apply_future_guard
+
+
+CONNECTOR_VERSION = "1.1.1"
+CONTEXT_VERSION = "1.1.1"
+REPORT_VERSION = "1.1.1"
 
 
 def _ready_trade_date(ready_data: dict[str, Any]) -> str | None:
@@ -48,7 +54,24 @@ def build_context(
     ready_data = ReadyReader(ready_path).read()
     selected_trade_date = trade_date or _ready_trade_date(ready_data)
     if not selected_trade_date:
-        raise ValueError("trade-date is required when ready file does not include trade_date")
+        context = IntradayContext(
+            trade_date="UNKNOWN",
+            next_trade_date=None,
+            next2_trade_date=None,
+            data_root=str(data_root),
+            ready_path=str(ready_path),
+            calendar_path=str(calendar_path),
+            ready=bool(ready_data.get("ready", False)),
+            status=str(ready_data.get("status", "FAIL")).upper(),
+            build_timestamp=datetime.now(timezone.utc).isoformat(),
+            metadata={"ready": ready_data},
+        )
+        _, warnings, failures = ready_allows_observation(ready_data)
+        context.warning_messages.extend(warnings)
+        for failure in failures:
+            context.fail(failure)
+        context.apply_ready_gate()
+        return context
     selected_trade_date = normalize_trade_date(selected_trade_date)
 
     calendar = TradeCalendar(calendar_path)
@@ -57,9 +80,16 @@ def build_context(
     paths = reader.paths
 
     context = IntradayContext(
+        context_version=CONTEXT_VERSION,
+        data_contract_version=str(ready_data.get("data_contract_version", "unknown")),
+        connector_version=CONNECTOR_VERSION,
         trade_date=window.trade_date,
         next_trade_date=window.next_trade_date,
         next2_trade_date=window.next2_trade_date,
+        snapshot_trade_date=selected_trade_date,
+        snapshot_generated_at=str(ready_data.get("snapshot_generated_at") or ready_data.get("created_at") or ""),
+        build_timestamp=datetime.now(timezone.utc).isoformat(),
+        report_version=REPORT_VERSION,
         ts_code=str(ready_data.get("ts_code", "600150.SH")),
         snapshot_time=snapshot_time,
         data_cutoff_time="14:00",
