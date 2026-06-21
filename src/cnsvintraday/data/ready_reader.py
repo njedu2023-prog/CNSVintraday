@@ -5,6 +5,9 @@ from pathlib import Path
 from typing import Any
 
 
+REQUIRED_READY_FIELDS = ("trade_date", "ready", "status", "allowed_usage")
+
+
 class ReadyReader:
     def __init__(self, path: Path):
         self.path = path
@@ -19,18 +22,34 @@ class ReadyReader:
         return data
 
 
+def validate_ready_schema(ready_data: dict[str, Any]) -> list[str]:
+    failures: list[str] = []
+    for field in REQUIRED_READY_FIELDS:
+        if field not in ready_data:
+            failures.append(f"missing required ready field: {field}")
+
+    allowed_usage = ready_data.get("allowed_usage")
+    if "allowed_usage" in ready_data and not isinstance(allowed_usage, dict):
+        failures.append("allowed_usage must be an object")
+
+    return failures
+
+
 def ready_allows_observation(ready_data: dict[str, Any]) -> tuple[bool, list[str], list[str]]:
     warnings: list[str] = []
-    failures: list[str] = []
+    failures: list[str] = validate_ready_schema(ready_data)
     ready = bool(ready_data.get("ready", False))
     status = str(ready_data.get("status", "FAIL")).upper()
     allowed_usage = ready_data.get("allowed_usage") or {}
 
-    if not ready:
+    if not isinstance(allowed_usage, dict):
+        allowed_usage = {}
+
+    if "ready" in ready_data and not ready:
         failures.append("ready=false")
-    if status == "WARN":
+    if "status" in ready_data and status == "WARN":
         warnings.append("ready status is WARN")
-    elif status != "PASS":
+    elif "status" in ready_data and status != "PASS":
         failures.append(f"status={status}")
     if allowed_usage.get("can_run_intraday_forecast") is False:
         failures.append("allowed_usage.can_run_intraday_forecast=false")
