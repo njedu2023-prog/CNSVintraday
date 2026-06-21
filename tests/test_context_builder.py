@@ -40,6 +40,7 @@ def _write_fixture(root: Path, status: str = "PASS") -> None:
         (base / name).write_bytes(b"placeholder")
     (base / "intraday_quality_1400.json").write_text("{}", encoding="utf-8")
     (base / "intraday_manifest_1400.json").write_text("{}", encoding="utf-8")
+    (base / "intraday_snapshot_1400.json").write_text("{}", encoding="utf-8")
 
 
 def test_context_builder_builds_allowed_context(tmp_path: Path) -> None:
@@ -66,6 +67,19 @@ def test_context_builder_blocks_fail_status(tmp_path: Path) -> None:
 
     assert context.allowed_to_run is False
     assert context.status == "FAIL"
+
+
+def test_context_builder_requires_snapshot_json(tmp_path: Path) -> None:
+    _write_fixture(tmp_path)
+    (tmp_path / "data/intraday/snapshots/20260622/1400/intraday_snapshot_1400.json").unlink()
+
+    context = build_context(
+        data_root=tmp_path,
+        calendar_path=tmp_path / "data/processed/trade_calendar.csv",
+    )
+
+    assert context.allowed_to_run is False
+    assert "missing snapshot_json" in context.fail_reasons
 
 
 def test_context_outputs_are_written(tmp_path: Path) -> None:
