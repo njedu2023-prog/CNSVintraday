@@ -32,6 +32,21 @@ def render_connector_report(context: IntradayContext) -> str:
         f"<tr><td>{escape(name)}</td><td>{'YES' if exists else 'NO'}</td></tr>"
         for name, exists in sorted(context.file_checks.items())
     )
+    coverage_total = len(context.file_checks)
+    coverage_ok = sum(1 for exists in context.file_checks.values() if exists)
+    coverage_text = f"{coverage_ok}/{coverage_total}" if coverage_total else "0/0"
+    contract_rows = [
+        ("Trade Date", context.trade_date),
+        ("Next Trade Date", context.next_trade_date or ""),
+        ("Ready", str(context.ready)),
+        ("Status", context.status),
+        ("Data Contract Version", context.data_contract_version),
+        ("Connector Version", context.connector_version),
+        ("Future Guard Result", "PASS" if context.future_guard_passed else "FAIL"),
+        ("Formal Signal Allowed", "False"),
+        ("File Coverage", coverage_text),
+    ]
+    contract_summary = "".join(f"<tr><td>{escape(k)}</td><td>{escape(v)}</td></tr>" for k, v in contract_rows)
     warnings = "".join(f"<li>{escape(item)}</li>" for item in context.warning_messages) or "<li>无</li>"
     failures = "".join(f"<li>{escape(item)}</li>" for item in context.fail_reasons) or "<li>无</li>"
     main_rows = "".join(f"<tr><td>{escape(k)}</td><td>{escape(v)}</td></tr>" for k, v in rows)
@@ -55,6 +70,8 @@ def render_connector_report(context: IntradayContext) -> str:
 <body>
   <h1>CNSVintraday V1.1 Data Connector Report</h1>
   <p><span class="badge {status_class}">{escape(context.status)}</span></p>
+  <h2>Contract Summary</h2>
+  <table><tbody>{contract_summary}</tbody></table>
   <h2>接线状态</h2>
   <table><tbody>{main_rows}</tbody></table>
   <h2>文件检查</h2>
