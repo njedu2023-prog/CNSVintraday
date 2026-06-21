@@ -29,5 +29,5 @@ def build_learning_summary(state: dict[str, Any] | None, metrics: dict[str, Any]
         "last_20": _window(metrics, "last_20"),
         "last_60": _window(metrics, "last_60"),
         "last_150": _window(metrics, "last_150"),
-        "sample_note": "样本不足，不能得出稳定结论。" if sample_count < 20 else "learning sample is available for observation.",
+        "sample_note": "样本不足，不能得出稳定结论。" if sample_count < 20 else "自学习样本已可用于观察。",
     }
