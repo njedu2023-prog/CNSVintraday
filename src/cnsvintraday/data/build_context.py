@@ -85,8 +85,9 @@ def build_context(
         context.allowed_to_run = False
 
     context.file_checks = reader.check_files()
+    required_files = {"snapshot_1min", "snapshot_5min", "snapshot_15min", "snapshot_json", "quality", "manifest"}
     for name, exists in context.file_checks.items():
-        if not exists and name in {"snapshot_1min", "snapshot_5min", "snapshot_15min", "quality", "manifest"}:
+        if not exists and name in required_files:
             context.fail(f"missing {name}")
 
     frames = []
