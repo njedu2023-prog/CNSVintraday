@@ -8,7 +8,22 @@ import pandas as pd
 from cnsvintraday.core.context import IntradayContext
 
 
-LABEL_KEYWORDS = ("label", "truth", "next_close", "actual_", "t1_")
+FUTURE_GUARD_VERSION = "1.1.1"
+FUTURE_FIELD_BLACKLIST = (
+    "next_trade_date",
+    "t1",
+    "t+1",
+    "future",
+    "label",
+    "truth",
+    "actual",
+    "realized",
+    "return_next",
+    "next_close",
+    "next_open",
+    "next_high",
+    "next_low",
+)
 
 
 def _series_times(values: Iterable[object]) -> list[time]:
@@ -20,7 +35,7 @@ def check_no_future_columns(columns: Iterable[str]) -> list[str]:
     violations = []
     for column in columns:
         lower = column.lower()
-        if any(keyword in lower for keyword in LABEL_KEYWORDS):
+        if any(keyword in lower for keyword in FUTURE_FIELD_BLACKLIST):
             violations.append(f"future/label column is not allowed in context: {column}")
     return violations
 
@@ -55,5 +70,6 @@ def apply_future_guard(context: IntradayContext, frames: list[pd.DataFrame] | No
             context.fail(violation)
     else:
         context.future_guard_passed = True
+    context.future_guard_version = FUTURE_GUARD_VERSION
     context.formal_signal_allowed = False
     return context
