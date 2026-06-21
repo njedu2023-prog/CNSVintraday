@@ -7,7 +7,7 @@ import pandas as pd
 
 def build_model_summary(predictions: pd.DataFrame | None, leaderboard: dict[str, Any] | None = None) -> dict[str, Any]:
     if predictions is None or predictions.empty:
-        return {"best_model": None, "models": [], "model_advantage_note": "prediction snapshot missing"}
+        return {"best_model": None, "models": [], "model_advantage_note": "预测快照缺失。"}
     rows = predictions.sort_values(["confidence", "prob_up"], ascending=False).to_dict("records")
     best = rows[0]
     leaderboard_rows = {row.get("model_name"): row for row in (leaderboard or {}).get("models", [])}
@@ -25,5 +25,5 @@ def build_model_summary(predictions: pd.DataFrame | None, leaderboard: dict[str,
         "models": rows,
         "leaderboard": list(leaderboard_rows.values()),
         "better_than_random": bool(advantage),
-        "model_advantage_note": "current model advantage is limited; observe only" if not advantage else "selected model is ahead of B0 on leaderboard",
+        "model_advantage_note": "当前模型优势有限，仅用于观察。" if not advantage else "选中模型在排行榜上优于 B0。",
     }
