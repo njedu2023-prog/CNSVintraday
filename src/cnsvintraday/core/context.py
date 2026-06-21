@@ -11,6 +11,14 @@ class IntradayContext:
     trade_date: str
     next_trade_date: str | None
     next2_trade_date: str | None
+    context_version: str = "1.1.1"
+    data_contract_version: str = "unknown"
+    connector_version: str = "1.1.1"
+    snapshot_trade_date: str | None = None
+    snapshot_generated_at: str | None = None
+    build_timestamp: str | None = None
+    future_guard_version: str = "1.1.1"
+    report_version: str = "1.1.1"
     ts_code: str = "600150.SH"
     snapshot_time: str = "1400"
     data_cutoff_time: str = "14:00"
